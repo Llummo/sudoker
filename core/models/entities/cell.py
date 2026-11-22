@@ -1,14 +1,16 @@
 
+from dataclasses import dataclass
 
+@dataclass
 class Cell:
     def __init__(self):
         pass
 
 
-    value : int = 0
     row : int
     col : int
     is_fixed : bool = False
+    value : int = 0
 
 
     def is_empty(self) -> bool:
