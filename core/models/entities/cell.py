@@ -3,9 +3,6 @@ from dataclasses import dataclass
 
 @dataclass
 class Cell:
-    def __init__(self):
-        pass
-
 
     row : int
     col : int
