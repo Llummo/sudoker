@@ -4,11 +4,7 @@ from core.models.entities.board import Board
 from core.models.entities.cell import Cell
 
 
-class Solver:
-    def __init__(self, board : Board):
-        self.board = board
-    _board : Board
-
+class Solver: 
 
     def _select_best_cell(self, board: Board) -> Cell | None:
         best_cell = None
