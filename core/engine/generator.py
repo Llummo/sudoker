@@ -4,8 +4,11 @@ from random import Random
 from core.engine.difficulty_grader import DifficultyGrader
 from core.engine.solver import Solver
 from core.models.entities.board import Board
+from core.models.entities.cell import Cell
+from core.models.entities.region import Region
 from core.models.entities.puzzle import Puzzle
 from core.models.types.difficulty import Difficulty
+from core.models.types.region_type import RegionType
 
 
 class Generator:
@@ -23,7 +26,8 @@ class Generator:
             seed = self._compute_seed(date, attempt)
             rng = Random(seed)  
 
-            board = self._build_full_board(rng) 
+            board = self._build_full_board(rng)
+            solution_grid = board.to_matrix()
 
             self._carve_holes(board, rng)
             initial_grid = board.to_matrix()   
@@ -54,8 +58,27 @@ class Generator:
         digest = hashlib.sha256(text).hexdigest()
         return int(digest[:16], 16)  
 
+    def _build_empty_board(self) -> Board:
+        grid = [[Cell(row, col) for col in range(9)] for row in range(9)]
+
+        regions = []
+        for row in range(9):
+            regions.append(Region(RegionType.ROW, [grid[row][col] for col in range(9)]))
+        for col in range(9):
+            regions.append(Region(RegionType.COL, [grid[row][col] for row in range(9)]))
+        for box_row in (0, 3, 6):
+            for box_col in (0, 3, 6):
+                box_cells = [
+                    grid[r][c]
+                    for r in range(box_row, box_row + 3)
+                    for c in range(box_col, box_col + 3)
+                ]
+                regions.append(Region(RegionType.BOX, box_cells))
+
+        return Board(grid, regions)
+
     def _build_full_board(self, rng: Random) -> Board:
-        board = Board() 
+        board = self._build_empty_board()
 
         def fill() -> bool:
             empty_cells = board.get_empty_cells()
