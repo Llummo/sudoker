@@ -7,7 +7,7 @@ from core.models.types.region_type import RegionType
 @dataclass
 class Region:
     region_type : RegionType
-    index : int
+    
     cells: list[Cell]
 
     def get_values(self) -> set[int]:
