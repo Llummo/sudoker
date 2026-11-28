@@ -1,12 +1,19 @@
-from core.engine.generator import Generator
+from typing import Protocol
+
 from core.models.entities.puzzle import Puzzle
 from core.models.types.difficulty import Difficulty
 from infrastructure.puzzle_repository import PuzzleRepository
 
 
+class PuzzleGenerator(Protocol):
+
+    def generate_daily(self, date: str, target: Difficulty) -> Puzzle:
+        ...
+
+
 class DailyPuzzleService:
 
-    def __init__(self, generator: Generator, repository: PuzzleRepository):
+    def __init__(self, generator: PuzzleGenerator, repository: PuzzleRepository):
         self._generator = generator
         self._repository = repository
 
