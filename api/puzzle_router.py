@@ -1,15 +1,13 @@
+import os
 from datetime import date as Date
 from functools import lru_cache
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 
-from core.engine.difficulty_grader import DifficultyGrader
-from core.engine.generator import Generator
-from core.engine.solver import Solver
 from core.models.entities.puzzle import Puzzle
 from core.models.types.difficulty import Difficulty
-from core.services.daily_puzzle_service import DailyPuzzleService
+from core.services.daily_puzzle_service import DailyPuzzleService, PuzzleGenerator
 from infrastructure.puzzle_repository import PostgresPuzzleRepository
 
 
@@ -31,9 +29,25 @@ class PuzzleResponse(BaseModel):
         )
 
 
+def build_generator() -> PuzzleGenerator:
+    # PUZZLE_ENGINE=placeholder (por defecto) mientras Solver y DifficultyGrader
+    # están en desarrollo. Con PUZZLE_ENGINE=real se usa el Generator del engine.
+    # Los imports van aquí dentro para que el engine incompleto no rompa el arranque.
+    if os.environ.get("PUZZLE_ENGINE", "placeholder").lower() == "real":
+        from core.engine.difficulty_grader import DifficultyGrader
+        from core.engine.generator import Generator
+        from core.engine.solver import Solver
+
+        return Generator(Solver(), DifficultyGrader())
+
+    from core.engine.placeholder_generator import PlaceholderGenerator
+
+    return PlaceholderGenerator()
+
+
 @lru_cache
 def get_puzzle_service() -> DailyPuzzleService:
-    generator = Generator(Solver(), DifficultyGrader())
+    generator = build_generator()
     repository = PostgresPuzzleRepository()
     return DailyPuzzleService(generator, repository)
 
