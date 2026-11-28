@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sudoker-db
+    environment:
+      POSTGRES_USER: sudoker
+      POSTGRES_PASSWORD: sudoker
+      POSTGRES_DB: sudoker
+    ports:
+      - "5432:5432"
+    volumes:
+      - sudoker-db-data:/var/lib/postgresql/data
+
+volumes:
+  sudoker-db-data:
